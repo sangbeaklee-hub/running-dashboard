@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>인천 SUB-3 프로젝트 | Red Team v3</title>
+<style>
+:root{
+ --bg:#f4f7fb;--card:#fff;--ink:#14213d;--muted:#6b7280;--line:#e5e7eb;
+ --navy:#153e75;--blue:#2563eb;--teal:#0f766e;--green:#16a34a;
+ --amber:#d97706;--red:#b91c1c;--purple:#7c3aed;--soft:#eef4ff;
+ --shadow:0 10px 30px rgba(20,33,61,.08);
+}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Pretendard,"Noto Sans KR",system-ui,-apple-system,sans-serif}
+.container{max-width:1320px;margin:auto;padding:24px}
+.hero{background:linear-gradient(135deg,#0f2f59,#164e63 58%,#0f766e);color:white;border-radius:22px;padding:26px 28px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:300px;height:300px;border:48px solid rgba(255,255,255,.07);border-radius:50%;right:-90px;top:-110px}
+.hero h1{margin:0 0 8px;font-size:clamp(24px,3.2vw,40px);letter-spacing:-.6px}.hero p{margin:0;color:#dbeafe}
+.hero-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.hero-badges span{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:7px 10px;border-radius:999px;font-size:13px}
+.tabs{display:flex;gap:8px;overflow:auto;padding:14px 0 4px;position:sticky;top:0;z-index:20;background:rgba(244,247,251,.94);backdrop-filter:blur(10px)}
+.tab{border:0;background:#fff;color:#334155;padding:10px 14px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.04);cursor:pointer;white-space:nowrap;font-weight:700}.tab.active{background:var(--navy);color:#fff}
+.panel{display:none}.panel.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.kpi{grid-column:span 3}.kpi .label{font-size:13px;color:var(--muted)}.kpi .value{font-size:28px;font-weight:800;margin-top:4px}.kpi .sub{font-size:12px;color:var(--muted);margin-top:4px}
+.span8{grid-column:span 8}.span4{grid-column:span 4}.span12{grid-column:span 12}.span6{grid-column:span 6}
+.section-title{font-size:19px;font-weight:800;margin:0 0 12px}.today-box{display:flex;gap:16px;align-items:center;justify-content:space-between}.today-main .date{font-size:13px;color:var(--muted)}.today-main .session{font-size:24px;font-weight:800;margin-top:5px}.today-main .detail{margin-top:8px;color:#475569;line-height:1.55}
+.badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}.low{background:#e8f5ec;color:#166534}.mid{background:#fff4d8;color:#92400e}.high{background:#fee2e2;color:#991b1b}.rest{background:#e5e7eb;color:#374151}.race{background:#ede9fe;color:#5b21b6}
+.progress-wrap{height:12px;border-radius:999px;background:#e8edf5;overflow:hidden;margin-top:9px}.progress{height:100%;background:linear-gradient(90deg,#2563eb,#0f766e)}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:white}
+table{border-collapse:collapse;width:100%;font-size:13px}th{position:sticky;top:0;background:#163b66;color:white;text-align:left;padding:11px 10px;white-space:nowrap}td{padding:10px;border-bottom:1px solid #edf0f4;vertical-align:top}tr:hover td{background:#f8fbff}.today-row td{background:#fff7d6!important}.checkpoint-row td{box-shadow:inset 4px 0 #f59e0b}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.filters select,.filters input,.filters button{border:1px solid #d8dee8;background:white;border-radius:10px;padding:9px 11px;color:#334155}.filters button{cursor:pointer;font-weight:700}
+.editable{min-width:75px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;padding:6px;outline:none}.editable:focus{border-color:#2563eb;background:#fff}
+.checkpoint{border-left:5px solid #f59e0b}.checkpoint.critical{border-left-color:#b91c1c;background:#fffafa}.cp-head{display:flex;justify-content:space-between;gap:10px}.cp-title{font-weight:800;font-size:17px}.cp-date{font-weight:800;color:#475569}.cp-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}.mini{background:#f8fafc;border-radius:12px;padding:11px}.mini b{display:block;font-size:12px;color:#64748b;margin-bottom:4px}.mini span{font-size:13px;line-height:1.5}
+.pace-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.pace-card{padding:16px;border:1px solid var(--line);border-radius:15px;background:white}.pace-card .p{font-size:22px;font-weight:800;color:#1d4ed8}.pace-card .n{font-weight:800;margin-bottom:4px}.pace-card .x{font-size:13px;color:#64748b;line-height:1.45;margin-top:8px}
+.weekbar{display:flex;gap:8px;align-items:end;height:190px;padding-top:10px}.bar-col{flex:1;text-align:center;min-width:45px}.bar{border-radius:8px 8px 2px 2px;background:linear-gradient(#3b82f6,#0f766e);min-height:8px}.bar-val{font-weight:800;font-size:12px;margin-bottom:5px}.bar-label{font-size:11px;color:#64748b;margin-top:6px}
+.note{font-size:12px;color:#64748b;line-height:1.55}.brief-list{display:grid;gap:10px}.brief-item{border:1px solid var(--line);border-radius:14px;padding:14px;background:white}.brief-item h3{margin:0 0 7px;font-size:15px}.brief-item p{margin:5px 0;color:#475569;font-size:13px;line-height:1.55}
+.footer{text-align:center;color:#94a3b8;font-size:12px;padding:24px 0}
+@media(max-width:900px){.kpi{grid-column:span 6}.span8,.span4,.span6{grid-column:span 12}.cp-body{grid-template-columns:1fr}.container{padding:12px}.hero{padding:20px}}
+@media(max-width:560px){.kpi{grid-column:span 12}.today-box{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="container">
+<header class="hero">
+  <h1>인천 SUB-3 프로젝트 · Red Team v3</h1>
+  <p>2026.09.08 → 2026.11.22 · 회/휴-약-강-회/휴-약-약/휴-강 · 긴 Easy + 주 2회 핵심</p>
+  <div class="hero-badges"><span>🏁 A-RACE 인천 11/22 SUB-3</span><span>🧪 춘천 10/25 3:05~3:10 통제 풀</span><span>🔥 Wed LT + Sun Long/MP</span><span>🧠 긴 Easy는 싸게</span></div>
+</header>
+
+<nav class="tabs">
+ <button class="tab active" data-tab="dash">대시보드</button>
+ <button class="tab" data-tab="daily">매일 훈련</button>
+ <button class="tab" data-tab="cp">필수 성공일</button>
+ <button class="tab" data-tab="pace">페이스 가이드</button>
+ <button class="tab" data-tab="weekly">주간 요약</button>
+ <button class="tab" data-tab="brief">훈련 브리핑</button>
+</nav>
+
+<section id="dash" class="panel active">
+ <div class="grid">
+   <div class="card kpi"><div class="label">전체 계획 거리</div><div class="value" id="totalKm"></div><div class="sub">9/8~11/22</div></div>
+   <div class="card kpi"><div class="label">9월 계획</div><div class="value" id="sepKm"></div><div class="sub">Red Team v5 · 10/6 반영</div></div>
+   <div class="card kpi"><div class="label">10월 계획</div><div class="value" id="octKm"></div><div class="sub">춘천 포함 빌드업</div></div>
+   <div class="card kpi"><div class="label">인천까지</div><div class="value" id="dday"></div><div class="sub">브라우저 날짜 기준</div></div>
+
+   <div class="card span8">
+    <h2 class="section-title">오늘 훈련</h2>
+    <div id="todayCard" class="today-box"></div>
+   </div>
+   <div class="card span4">
+    <h2 class="section-title">프로젝트 진행</h2>
+    <div class="note" id="progressText"></div>
+    <div class="progress-wrap"><div class="progress" id="projectProgress"></div></div>
+    <div class="note" style="margin-top:10px">핵심: 4:15/km를 '빠른 페이스'가 아니라 통제 가능한 MP로 만드는 것.</div>
+   </div>
+
+   <div class="card span8"><h2 class="section-title">주차별 계획 마일리지</h2><div id="weekBars" class="weekbar"></div></div>
+   <div class="card span4"><h2 class="section-title">다음 핵심 체크포인트</h2><div id="nextCp"></div></div>
+ </div>
+</section>
+
+<section id="daily" class="panel">
+ <div class="card" style="margin-top:16px">
+   <h2 class="section-title">매일 훈련계획</h2>
+   <div class="filters">
+    <select id="monthFilter"><option value="all">전체 월</option><option value="09">9월</option><option value="10">10월</option><option value="11">11월</option></select>
+    <select id="intensityFilter"><option value="all">전체 강도</option><option>하</option><option>중</option><option>중상</option><option>상</option><option>최상</option><option>휴식</option></select>
+    <input id="searchBox" placeholder="훈련/목적 검색">
+    <button id="todayBtn">오늘로 이동</button>
+   </div>
+   <div class="note" style="margin-bottom:8px">실제 km / 평균페이스 / 컨디션 / 메모는 직접 입력 가능하며 이 브라우저에 자동 저장됩니다.</div>
+   <div class="table-wrap"><table id="dailyTable"><thead></thead><tbody></tbody></table></div>
+ </div>
+</section>
+
+<section id="cp" class="panel"><div id="cpList" class="grid"></div></section>
+<section id="pace" class="panel"><div class="card" style="margin-top:16px"><h2 class="section-title">페이스 가이드</h2><div id="paceGrid" class="pace-grid"></div></div></section>
+<section id="weekly" class="panel"><div class="card" style="margin-top:16px"><h2 class="section-title">주간 요약</h2><div class="table-wrap"><table id="weeklyTable"></table></div></div></section>
+<section id="brief" class="panel"><div class="card" style="margin-top:16px"><h2 class="section-title">훈련 브리핑 / 운영 원칙</h2><div id="briefList" class="brief-list"></div></div></section>
+
+<div class="footer">Red Team v3 · 9/27 30K 실적 및 춘천 통제 풀/인천 A-RACE 전략 반영 · 입력값은 localStorage 저장</div>
+</div>
+
+<script>
+const DATA = {"daily":[{"날짜":"2026-09-08","요일":"Tue","훈련":"프로그레션 (완료)","상세 계획":"6K: 6:49→6:01→5:20→5:02→4:50→4:26. 추가훈련 없음.","계획 km":6,"강도":"중","목적":"하프 후 반응 확인","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-09-09","요일":"Wed","훈련":"Recovery","상세 계획":"10K @5:50~6:20. 빌드업 금지.","계획 km":10,"강도":"하","목적":"회복/무릎 확인","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-09-10","요일":"Thu","훈련":"Easy + Strides","상세 계획":"12K @5:25~5:55 + 100m×5","계획 km":12.5,"강도":"하","목적":"유산소+신경근","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-09-11","요일":"Fri","훈련":"1K 인터벌","상세 계획":"WU 3K + 1K×5 @3:50~3:55 / 조깅 2~3분 + CD 3K","계획 km":13,"강도":"상","목적":"5K/10K 기반","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-09-12","요일":"Sat","훈련":"Recovery","상세 계획":"9K @5:50~6:20","계획 km":9,"강도":"하","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-09-13","요일":"Sun","훈련":"Long Progression","상세 계획":"24K: 15K @5:00~5:15 → 5K @4:40~4:50 → 4K @4:30~4:40","계획 km":24,"강도":"중상","목적":"장거리 내구성","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-09-14","요일":"Mon","훈련":"Recovery","상세 계획":"9K @5:50~6:20","계획 km":9,"강도":"하","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-09-15","요일":"Tue","훈련":"Easy","상세 계획":"12K @5:25~5:55","계획 km":12,"강도":"하","목적":"볼륨","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-09-16","요일":"Wed","훈련":"LT 크루즈","상세 계획":"WU 3K + 2K×3 @4:00~4:05 / 조깅 2분 + CD 3K","계획 km":13,"강도":"상","목적":"LT","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-09-17","요일":"Thu","훈련":"Recovery","상세 계획":"9K","계획 km":9,"강도":"하","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-09-18","요일":"Fri","훈련":"Easy + Strides","상세 계획":"10K Easy + 100m×4","계획 km":10.4,"강도":"하","목적":"다리 깨우기","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-09-19","요일":"Sat","훈련":"Shakeout","상세 계획":"5K @6:00 전후 또는 휴식","계획 km":5,"강도":"하","목적":"피로 제거","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-09-20","요일":"Sun","훈련":"공주백제 32K","상세 계획":"0~10K 4:35~40 / 10~20K 4:30~35 / 20~27K 4:25~30 / 이후 여유 시 4:20대","계획 km":32,"강도":"상","목적":"32K 내구성","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"★ 필수성공 1차: 25~32K 내구성"},{"날짜":"2026-09-21","요일":"Mon","훈련":"완전휴식","상세 계획":"공주 21.27K 이후 완전휴식.","계획 km":0,"강도":"휴식","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"공주 32K는 21.27K에서 종료: 더위 대응상 중단 판단"},{"날짜":"2026-09-22","요일":"Tue","훈련":"Easy 20K","상세 계획":"약 6:00/km 저강도 20K. 빌드업 금지.","계획 km":20,"강도":"하","목적":"저강도 볼륨","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"회-약-강 패턴의 약"},{"날짜":"2026-09-23","요일":"Wed","훈련":"15K 빌드업 (완료)","상세 계획":"15.01K 프로그레션. 후반 4:48→4:39→4:35→4:28→4:22. 땡볕에서 20K 대신 15K 종료.","계획 km":15.01,"강도":"상","목적":"주중 포인트","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"이번 주 강 1회 완료"},{"날짜":"2026-09-24","요일":"Thu","훈련":"휴식/Recovery","상세 계획":"1순위 완전휴식. 몸이 굳으면 30~45분 아주 편하게, 최대 7K @5:50~6:30.","계획 km":0,"강도":"휴식","목적":"포인트 회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"어제 빌드업 후 회복 우선"},{"날짜":"2026-09-25","요일":"Fri","훈련":"Easy","상세 계획":"15~18K @5:35~6:00. 끝까지 Easy, 후반 가속 금지.","계획 km":16,"강도":"하","목적":"유산소 볼륨","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"금요일 20K 고정 금지: 일요일 롱런 품질 보호"},{"날짜":"2026-09-26","요일":"Sat","훈련":"휴식/Shakeout","상세 계획":"완전휴식 우선. 몸이 뻣뻣하면 5~6K @6:00 전후.","계획 km":0,"강도":"휴식","목적":"롱런 준비","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"일요일 30K 성공률 우선"},{"날짜":"2026-09-27","요일":"Sun","훈련":"30K Progression (완료)","상세 계획":"30.01K 논스톱 프로그레시브 완료. 후반 4:57→4:54→4:50→4:48→4:49→4:38→4:35→4:27.","계획 km":30,"강도":"상","목적":"장거리 내구성/후반 폼","실제 km":30.01,"실제 평균페이스":"5:07/km","통증/컨디션":"생각보다 할 만함","메모":"2:33:25 / Avg HR 144. Fuel X 고농도는 25K 이후 느끼함·맑은 물 선호. 30K 내내 통제권 유지"},{"날짜":"2026-09-28","요일":"Mon","훈련":"완전휴식","상세 계획":"9/27 30K 성공 후 완전휴식. 걷기/가벼운 가동성만.","계획 km":0,"강도":"휴식","목적":"롱런 회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-09-29","요일":"Tue","훈련":"Easy","상세 계획":"15~18K @5:35~6:00. 30K 잔여피로 없을 때만 18K, 마지막까지 Easy.","계획 km":16,"강도":"하","목적":"유산소/마일리지","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"수요일 포인트에 피로 남으면 15~16K로 축소"},{"날짜":"2026-09-30","요일":"Wed","훈련":"LT 크루즈/조정","상세 계획":"30K 회복 정상 시 WU 3K + 2K×3 @4:00~4:05 / 조깅 2분 + CD. 다리 무거우면 2K×2 또는 Easy로 하향.","계획 km":12,"강도":"상","목적":"LT","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"주중 강"},{"날짜":"2026-10-01","요일":"Thu","훈련":"휴식/Recovery","상세 계획":"완전휴식 또는 6~8K @5:50~6:30.","계획 km":0,"강도":"휴식","목적":"LT 회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-02","요일":"Fri","훈련":"Easy","상세 계획":"12~15K @5:30~5:55. 강남 하프 앞두고 볼륨만.","계획 km":14,"강도":"하","목적":"유산소 유지","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-03","요일":"Sat","훈련":"휴식","상세 계획":"완전휴식. 수면·탄수·수분.","계획 km":0,"강도":"휴식","목적":"하프 준비","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"프라이밍 삭제: 월요일 하프 품질 보호"},{"날짜":"2026-10-04","요일":"Sun","훈련":"Shakeout/휴식","상세 계획":"4~5K @6:00 전후 + 80~100m×3 선택. 피곤하면 완전휴식.","계획 km":4,"강도":"하","목적":"하프 준비","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-05","요일":"Mon","훈련":"강남 하프 (완료/PB)","상세 계획":"1차 목표 Sub-1:30. 0~5K 4:18 전후 → 5~15K 4:15~4:16 → 15K 이후 상태 좋으면 점진 가속. 올아웃 집착 금지.","계획 km":21.1,"강도":"상","목적":"하프/MP 비용 검증","실제 km":21.11,"실제 평균페이스":"4:19/km","통증/컨디션":"다리·좌측 무릎 이상 없음. 후반까지 유지/가속 가능","메모":"PB 1:31:15. 본훈련 전 WU 2.13K @5:36/km(HR 133). 15K 이후에도 크게 무너지지 않고 마지막 1.11K 약 4:04/km. Sub-1:30은 미달했지만 마라톤 특이적 내구성과 4:20 언더 지속능력의 뚜렷한 개선 확인."},{"날짜":"2026-10-06","요일":"Tue","훈련":"Recovery Jog (완료)","상세 계획":"하프 다음날 원래 완전휴식 권고. 실제로는 아라뱃길에서 매우 느린 회복 조깅 실시.","계획 km":0,"강도":"하","목적":"회복/혈류","실제 km":10.11,"실제 평균페이스":"6:26/km","통증/컨디션":"평균 HR 133. 예상보다 심박은 다소 높았으나 통증 보고 없음","메모":"1:05:03. 1K 7:01에서 시작해 대부분 6분대, 마지막 1K 5:30. 하프 다음날이므로 페이스보다 회복비용 관리가 핵심. 회복 조깅 자체는 충분히 느렸으나 10K는 회복일 기준 상한에 가까움."},{"날짜":"2026-10-07","요일":"Wed","훈련":"Recovery","상세 계획":"6~8K @5:50~6:30. 하프 피로 남으면 휴식.","계획 km":7,"강도":"하","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-08","요일":"Thu","훈련":"Easy","상세 계획":"12~15K @5:30~5:55.","계획 km":14,"강도":"하","목적":"유산소 복귀","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-09","요일":"Fri","훈련":"Easy","상세 계획":"10~12K @5:35~6:00 + strides 4회 선택.","계획 km":11,"강도":"하","목적":"롱런 준비","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"하프 4일 후 LT 삭제"},{"날짜":"2026-10-10","요일":"Sat","훈련":"휴식","상세 계획":"완전휴식. 핵심 MP Long 준비.","계획 km":0,"강도":"휴식","목적":"MP 롱런 준비","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-11","요일":"Sun","훈련":"MP Long","상세 계획":"28~30K: 16~18K Easy @5:20~5:45 + 8~10K @4:20~4:25. 마지막 2K는 여유 있을 때만 4:15~4:20.","계획 km":29,"강도":"상","목적":"MP 내구성","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"★★ 핵심: 4:15를 억지로 찍기보다 4:20대 비용/폼 확인"},{"날짜":"2026-10-12","요일":"Mon","훈련":"휴식","상세 계획":"완전휴식. MP Long 회복.","계획 km":0,"강도":"휴식","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-13","요일":"Tue","훈련":"Easy","상세 계획":"15~18K @5:35~6:00.","계획 km":16,"강도":"하","목적":"유산소 볼륨","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-14","요일":"Wed","훈련":"LT 크루즈","상세 계획":"WU 3K + 2K×3 @4:00~4:05 / 2분 조깅 + CD. 춘천 전 마지막 본격 LT.","계획 km":13,"강도":"상","목적":"LT 유지","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"5K 18:50 프라이밍보다 마라톤 특이성 우선"},{"날짜":"2026-10-15","요일":"Thu","훈련":"휴식/Recovery","상세 계획":"완전휴식 또는 6~8K @5:50~6:30.","계획 km":0,"강도":"휴식","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-16","요일":"Fri","훈련":"Easy","상세 계획":"12~15K @5:30~5:55 + strides 4회 선택.","계획 km":14,"강도":"하","목적":"유지","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-17","요일":"Sat","훈련":"휴식","상세 계획":"완전휴식.","계획 km":0,"강도":"휴식","목적":"롱런 준비","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"5K TT 삭제: 춘천 D-8에 불필요한 강도"},{"날짜":"2026-10-18","요일":"Sun","훈련":"Long Easy","상세 계획":"20~22K @5:25~5:50. MP 삽입 금지. 테이퍼 시작.","계획 km":22,"강도":"중","목적":"장거리 유지","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"춘천 1주 전 피로 생성 금지"},{"날짜":"2026-10-19","요일":"Mon","훈련":"휴식/Recovery","상세 계획":"완전휴식 우선. 필요 시 5~6K 회복.","계획 km":0,"강도":"휴식","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-20","요일":"Tue","훈련":"Easy","상세 계획":"10~12K @5:30~5:55 + strides 4회.","계획 km":11,"강도":"하","목적":"리듬 유지","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-21","요일":"Wed","훈련":"MP 프라이밍","상세 계획":"총 9~10K 중 3K×1 @4:18~4:20. 나머지 Easy. 짧고 가볍게.","계획 km":10,"강도":"중","목적":"MP 감각","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"강한 LT 금지"},{"날짜":"2026-10-22","요일":"Thu","훈련":"휴식/Recovery","상세 계획":"완전휴식 또는 5~6K @6:00 전후.","계획 km":0,"강도":"휴식","목적":"테이퍼","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-23","요일":"Fri","훈련":"Easy","상세 계획":"6~8K @5:40~6:05 + strides 3회 선택.","계획 km":7,"강도":"하","목적":"다리 깨우기","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-24","요일":"Sat","훈련":"휴식/Shakeout","상세 계획":"완전휴식 우선. 몸이 굳으면 3~4K 아주 가볍게.","계획 km":0,"강도":"휴식","목적":"레이스 준비","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-25","요일":"Sun","훈련":"춘천마라톤 · 통제 풀","상세 계획":"목표 3:05~3:10(평균 약 4:23~4:30/km). 초반 4:30 안팎 → 중반 4:25 전후 → 30K 이후 상태 좋으면 유지/소폭 가속. PB·Sub-3 올아웃 금지.","계획 km":42.2,"강도":"상","목적":"인천 대비 42K 특이적 실전훈련","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"★★ 인천 A-RACE를 위한 초대형 특이적 세션. 완전 소진하지 않고 회복 가능하게 종료"},{"날짜":"2026-10-26","요일":"Mon","훈련":"완전휴식","상세 계획":"완전휴식 + 걷기.","계획 km":0,"강도":"휴식","목적":"풀 회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-27","요일":"Tue","훈련":"완전휴식","상세 계획":"러닝 없음.","계획 km":0,"강도":"휴식","목적":"풀 회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-28","요일":"Wed","훈련":"휴식/Recovery","상세 계획":"통증 없고 계단 정상일 때만 4~5K 회복.","계획 km":0,"강도":"휴식","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-29","요일":"Thu","훈련":"Recovery","상세 계획":"6~8K @5:50~6:30. 피로 남으면 휴식.","계획 km":7,"강도":"하","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-30","요일":"Fri","훈련":"Easy","상세 계획":"8~10K @5:35~6:00.","계획 km":9,"강도":"하","목적":"복귀","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-10-31","요일":"Sat","훈련":"휴식/Very Easy","상세 계획":"휴식 또는 5~6K 아주 편하게.","계획 km":0,"강도":"휴식","목적":"복귀","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-01","요일":"Sun","훈련":"Long Easy","상세 계획":"14~18K @5:30~5:55. 춘천 회복 상태에 따라 축소.","계획 km":16,"강도":"중","목적":"장거리 복귀","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-02","요일":"Mon","훈련":"휴식/Recovery","상세 계획":"휴식 또는 5~7K 회복.","계획 km":0,"강도":"휴식","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-03","요일":"Tue","훈련":"Easy","상세 계획":"15~18K @5:35~6:00.","계획 km":16,"강도":"하","목적":"볼륨","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-04","요일":"Wed","훈련":"LT 유지","상세 계획":"WU + 2K×3 @4:00~4:05 / 2분 조깅 + CD. 춘천 회복 완전할 때만.","계획 km":12,"강도":"상","목적":"LT 유지","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"주중 강"},{"날짜":"2026-11-05","요일":"Thu","훈련":"휴식/Recovery","상세 계획":"완전휴식 또는 6~8K 회복.","계획 km":0,"강도":"휴식","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-06","요일":"Fri","훈련":"Easy","상세 계획":"12~15K @5:30~5:55.","계획 km":14,"강도":"하","목적":"유지","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-07","요일":"Sat","훈련":"휴식","상세 계획":"완전휴식. 일요일 핵심 세션 준비.","계획 km":0,"강도":"휴식","목적":"MP 준비","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-08","요일":"Sun","훈련":"최종 MP Long","상세 계획":"26~28K: 10K Easy + 12~16K @4:15~4:20 + CD. 춘천 회복이 100%일 때만 16K MP. 인천 최종 특이성 검증.","계획 km":27,"강도":"상","목적":"인천 MP 검증","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"★★ 인천 D-14. 기존 MP 20K는 과도하여 축소"},{"날짜":"2026-11-09","요일":"Mon","훈련":"휴식","상세 계획":"완전휴식.","계획 km":0,"강도":"휴식","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-10","요일":"Tue","훈련":"Easy","상세 계획":"14~16K @5:35~6:00.","계획 km":15,"강도":"하","목적":"유지","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-11","요일":"Wed","훈련":"LT 유지","상세 계획":"WU + 2K×2~3 @4:00~4:05 + CD. 총량보다 여유.","계획 km":11,"강도":"상","목적":"역치 유지","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"마지막 본격 강도"},{"날짜":"2026-11-12","요일":"Thu","훈련":"휴식/Recovery","상세 계획":"휴식 또는 6~8K 회복.","계획 km":0,"강도":"휴식","목적":"회복","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-13","요일":"Fri","훈련":"Easy","상세 계획":"10~12K @5:35~6:00 + strides 4회.","계획 km":11,"강도":"하","목적":"리듬","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-14","요일":"Sat","훈련":"휴식","상세 계획":"완전휴식.","계획 km":0,"강도":"휴식","목적":"롱런 준비","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-15","요일":"Sun","훈련":"MP 리듬","상세 계획":"18~20K: 8K Easy + 6~8K @4:15~4:20 + Easy. 생존훈련 금지.","계획 km":19,"강도":"중상","목적":"테이퍼 MP 감각","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"기존 MP 12K에서 축소"},{"날짜":"2026-11-16","요일":"Mon","훈련":"휴식/Recovery","상세 계획":"완전휴식 우선.","계획 km":0,"강도":"휴식","목적":"테이퍼","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-17","요일":"Tue","훈련":"Easy","상세 계획":"10~12K @5:35~6:00 + strides 4회.","계획 km":11,"강도":"하","목적":"리듬","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-18","요일":"Wed","훈련":"프라이밍","상세 계획":"8K 중 1K×3 @4:00, 충분한 회복. 가볍게.","계획 km":8,"강도":"중","목적":"다리 깨우기","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-19","요일":"Thu","훈련":"휴식/Recovery","상세 계획":"휴식 또는 5~6K 아주 편하게.","계획 km":0,"강도":"휴식","목적":"피로 제거","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-20","요일":"Fri","훈련":"Easy/휴식","상세 계획":"5~6K 아주 편하게 또는 휴식. 수면/탄수/수분.","계획 km":5,"강도":"하","목적":"레이스 준비","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-21","요일":"Sat","훈련":"휴식/Shakeout","상세 계획":"완전휴식 우선. 필요 시 3~4K + strides 3회.","계획 km":0,"강도":"휴식","목적":"레이스 준비","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":null},{"날짜":"2026-11-22","요일":"Sun","훈련":"인천마라톤","상세 계획":"춘천 회복 및 11/8 MP Long 결과가 정상일 때 Sub-3 재도전. 0~5K 4:17~4:18 → 5~30K 4:14~4:16 → 30K 이후 판단.","계획 km":42.2,"강도":"최상","목적":"시즌 두 번째 풀","실제 km":null,"실제 평균페이스":null,"통증/컨디션":null,"메모":"춘천 후 4주: 회복 불충분 시 목표 하향"}],"briefing":[{"주제":"10/6 현재 총평","상세 브리핑":"9/27 30.01K 논스톱 프로그레션 성공에 이어 10/5 하프 21.11K를 1:31:15(4:19/km)로 완주하고 후반까지 유지·가속했다. 10/6에는 10.11K @6:26/km 회복 조깅으로 강약 분리를 유지했다. 최근 성과는 평소 Easy를 빠르게 만들기보다 긴 Easy를 싸게 쌓고 핵심일에 품질을 집중한 방식이 형에게 잘 맞고 있음을 보여준다.","성공 기준":"10/11 MP Long 전까지 피로·통증을 키우지 않고 Easy/회복 강도를 지키는 것","조정 기준":"하프 성과에 고무돼 Easy를 4분대로 끌어올리거나 추가 강훈련을 넣지 않는다. 수면·HRV·다리 상태가 나쁘면 거리부터 줄인다."},{"주제":"프로젝트 목표","상세 브리핑":"11/22 인천 Sub-3가 A-RACE. 10/25 춘천은 3:05~3:10 통제 풀로 42K 특이적 자극을 확보하고 인천까지 회복·재상승.","성공 기준":"4:15~4:16을 낮은 비용으로 오래 유지 + 춘천 후 빠른 회복","조정 기준":"춘천 PB 욕심·마일리지 숫자 때문에 인천 MP/회복 품질 희생 금지"},{"주제":"C안","상세 브리핑":"기본 리듬: 회/휴-약-강-회/휴-약-약/휴-강. 주 2강 원칙.","성공 기준":"수요일 포인트 + 일요일 롱런 품질","조정 기준":"회복일 60분/10K 상한, 필요 시 0K"},{"주제":"공주32K","상세 브리핑":"초반 절제, 25~32K 내구성 시험.","성공 기준":"평균 4:30±5초/후반 유지","조정 기준":"20K 전 힘들면 감속"},{"주제":"5K 18:50","상세 브리핑":"1K 반복→LT→10/17 TT.","성공 기준":"3:46/km를 통제","조정 기준":"과속출발/통증 시 중단"},{"주제":"강남 하프","상세 브리핑":"Sub-1:30을 1차 기준으로 4:15~4:16의 비용을 측정.","성공 기준":"15K까지 통제 + 후반 유지/가속 여지","조정 기준":"1:25대 올아웃 목표는 춘천 준비 관점에서 삭제"},{"주제":"춘천","상세 브리핑":"인천 대비 통제 풀. 목표 3:05~3:10, 초반 4:30 안팎에서 시작해 중반 4:25 전후, 후반 상태에 따라 유지/소폭 가속.","성공 기준":"42K를 완전 소진 없이 안정적으로 완주하고 7~10일 내 정상 Easy 복귀","조정 기준":"PB/Sub-3 추격 금지. 날씨·통증 불리하면 더 보수적으로"},{"주제":"최종 MP Long","상세 브리핑":"11/8 26~28K 중 MP 12~16K. 춘천 2주 후라 회복을 최우선.","성공 기준":"4:15~4:20에서 HR drift와 폼 안정","조정 기준":"춘천 잔여피로 있으면 MP 8~12K 또는 Easy로 전환"},{"주제":"보급 연습","상세 브리핑":"25K+ 롱런/MP Long/춘천에서 Fuel X·엔업을 반복 테스트. 9/27에는 4스쿱/400mL 고농도 Fuel X가 25K 이후 느끼해 맑은 물 욕구가 확인됨.","성공 기준":"위장 편안함 + 충분한 탄수화물 + 갈증 통제","조정 기준":"Fuel X 단독 고집 금지. 농도 조절 또는 맑은 물/젤 조합으로 인천용 시스템 확정"},{"주제":"부상 규칙","상세 브리핑":"약으로 가린 무통은 정상 판정 아님.","성공 기준":"약 없이 걷기/계단/Easy 무통","조정 기준":"붓기/잠김/휘청이면 중단"},{"주제":"체중","상세 브리핑":"Easy 볼륨+식단으로 감량.","성공 기준":"훈련연료 유지","조정 기준":"체중 때문에 고강도 추가 금지"},{"주제":"인천 레이스","상세 브리핑":"0~5K 4:17~18 → 5~30K 4:14~16 → 이후 판단.","성공 기준":"하프 약 1:29:30","조정 기준":"초반 시간저축 금지"},{"주제":"필수 성공일 개념","상세 브리핑":"모든 날을 잘 뛰는 것이 목표가 아니다. 긴 Easy를 싸게 쌓고 회복일을 충분히 느리게 보내 핵심 체크포인트 성공률을 높인다.","성공 기준":"9/27 완료·10/5·10/11·10/25·11/8·11/22를 중심으로 평가","조정 기준":"Easy를 빠르게 뛰어 핵심일의 질을 떨어뜨리지 않기"},{"주제":"주간 리듬","상세 브리핑":"월 회/휴 → 화 약 → 수 강 → 목 회/휴 → 금 약 → 토 약/휴 → 일 강.","성공 기준":"주 2강, 나머지는 실제로 Easy/Recovery","조정 기준":"몸이 좋다고 약→중강으로 올리지 말고, 피곤하면 강→약으로만 조정"}],"pace":[{"구분":"Recovery","페이스":"5:50~6:30","체감":"RPE 2~3","사용법":"30~50분, 최대 60분/10K","주의":"피로 크면 완전휴식이 우선"},{"구분":"Easy","페이스":"5:25~5:55","체감":"RPE 3~4","사용법":"12~16K 주력, 18~20K는 선택","주의":"후반 4분대로 가속 금지"},{"구분":"Steady","페이스":"4:45~5:05","체감":"RPE 4~5","사용법":"롱런 중 제한 사용","주의":"매일 빠른조깅 금지"},{"구분":"MP","페이스":"4:15~4:20","체감":"RPE 5~6","사용법":"Sub-3 특이 페이스","주의":"4:15 숫자 집착보다 HR/RPE/폼 안정"},{"구분":"LT","페이스":"3:58~4:05","체감":"RPE 7~8","사용법":"2K/3K/1마일 반복","주의":"주 1회 이내"},{"구분":"5K 목표","페이스":"3:46","체감":"RPE 9","사용법":"18:50 목표","주의":"TT 외 남용 금지"},{"구분":"1K 인터벌","페이스":"3:42~3:55","체감":"RPE 8~9","사용법":"5K 스피드","주의":"폼 무너지면 종료"}],"checkpoints":[{"중요도":"완료","날짜":"2026-09-20","D-Day 성격":"1차 관문","훈련/대회":"공주백제 32K","꼭 성공해야 할 기준":"21.27K에서 종료. 땡볕 조건에서 무리한 32K 완주보다 중단 선택.","왜 중요한가":"실전에서 열 스트레스와 당일 컨디션의 영향을 확인. 30K급 time-on-feet는 9/27로 이월.","실패/조정 시 해석":"실패로 간주하지 않고 9/27 Easy 30K로 거리 자극을 보완.","판정":null},{"중요도":"완료 ★★★★★","날짜":"2026-09-27","D-Day 성격":"거리 복구/후반 내구성","훈련/대회":"30K Progression","꼭 성공해야 할 기준":"30.01K / 2:33:25 / 5:07. 논스톱, 후반 4:57→4:27로 지속 빌드업.","왜 중요한가":"공주에서 놓친 30K급 time-on-feet를 복구하면서 후반에도 페이스·폼 통제 가능함을 확인.","실패/조정 시 해석":"성공. 다음 단계는 MP Long에서 20K 이후 4:15~4:20의 비용을 검증.","판정":"성공"},{"중요도":"★★★★","날짜":"2026-10-05","D-Day 성격":"엔진 검사","훈련/대회":"강남 하프","꼭 성공해야 할 기준":"Sub-1:30 1차 기준. 15K까지 4:15~4:18이 통제되고 후반 유지 가능해야 함.","왜 중요한가":"춘천 전 4:15대의 생리적 비용을 측정. 기록 자체보다 HR·호흡·폼이 중요.","실패/조정 시 해석":"4:16이 초반부터 전투가 되면 춘천 Sub-3 출발전략을 보수적으로 조정.","판정":null},{"중요도":"★★★★★","날짜":"2026-10-11","D-Day 성격":"첫 Sub-3 특이성","훈련/대회":"28K MP Long","꼭 성공해야 할 기준":"28~30K 중 후반 8~10K @4:20~4:25. 여유 있을 때만 마지막 2K 4:15~4:20.","왜 중요한가":"피로 상태에서 MP 근접 페이스의 비용과 폼 유지 확인.","실패/조정 시 해석":"4:20대가 생존훈련이면 춘천 4:15 고정 전략은 재검토.","판정":null},{"중요도":"★★★★★","날짜":"2026-10-25","D-Day 성격":"통제 풀/인천 리허설","훈련/대회":"춘천마라톤 3:05~3:10","꼭 성공해야 할 기준":"초반 4:30 안팎 → 중반 4:25 전후. 완전 소진 없이 42.195K를 안정적으로 마치고 보급까지 실전 점검.","왜 중요한가":"인천 4주 전 42K 특이적 자극. 기록보다 피로저항성·보급·회복성을 확보하는 날.","실패/조정 시 해석":"PB/Sub-3 추격 금지. 후반 피로가 크면 페이스를 낮춰 인천 준비를 보존.","판정":null},{"중요도":"★★★★★","날짜":"2026-11-08","D-Day 성격":"인천 전 최종 MP 확인","훈련/대회":"30K 최종 MP Long","꼭 성공해야 할 기준":"26~28K 중 MP 12~16K @4:15~4:20. 춘천 회복 100%일 때만 최대치.","왜 중요한가":"춘천 2주 후 회복 상태와 인천 재도전 가능성을 동시에 확인.","실패/조정 시 해석":"잔여피로가 있으면 훈련 실패가 아니라 회복 미완료 신호. 인천 목표를 조정.","판정":null},{"중요도":"★★★★","날짜":"2026-11-15","D-Day 성격":"테이퍼 확인","훈련/대회":"22K 중 MP 12K","꼭 성공해야 할 기준":"18~20K 중 MP 6~8K를 편하게 확인.","왜 중요한가":"체력 생성이 아니라 인천 전 리듬 확인.","실패/조정 시 해석":"피로하면 MP 삭제. 테이퍼가 우선.","판정":null},{"중요도":"🏁","날짜":"2026-11-22","D-Day 성격":"A-RACE / 본시험","훈련/대회":"인천마라톤","꼭 성공해야 할 기준":"2:59:xx. 0~5K 4:17~4:18 → 5~30K 4:14~4:16 → 30K 이후 판단","왜 중요한가":"75일 동안 만든 스피드 여유도와 마라톤 내구성을 실제 결과로 전환.","실패/조정 시 해석":"초반 시간 저축 금지. 30K까지 통제가 최우선.","판정":null}],"weekly":[{"week":"W1","period":"09/08~09/13","km":74.5,"key":"1K 인터벌 / Long Progression"},{"week":"W2","period":"09/14~09/20","km":90.4,"key":"LT 크루즈 / 공주백제"},{"week":"W3","period":"09/21~09/27","km":81.0,"key":"15K 빌드업 / 30K Progression 성공"},{"week":"W4","period":"09/28~10/04","km":50.0,"key":"LT 크루즈 / 하프 테이퍼"},{"week":"W5","period":"10/05~10/11","km":82.1,"key":"강남 하프 / MP Long"},{"week":"W6","period":"10/12~10/18","km":65.0,"key":"LT / 테이퍼 Long"},{"week":"W7","period":"10/19~10/25","km":70.2,"key":"춘천 3:05~3:10 통제 풀"},{"week":"W8","period":"10/26~11/01","km":32.0,"key":"춘천 회복"},{"week":"W9","period":"11/02~11/08","km":69.0,"key":"LT / 인천 MP Long"},{"week":"W10","period":"11/09~11/15","km":56.0,"key":"LT / MP 리듬"},{"week":"W11","period":"11/16~11/22","km":66.2,"key":"인천마라톤"}],"meta":{"total_km":736.4,"sep_km":277.9,"oct_km":251.3,"nov_km":207.2}};
+
+const koDay = {Mon:"월",Tue:"화",Wed:"수",Thu:"목",Fri:"금",Sat:"토",Sun:"일"};
+const esc = s => String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const dateObj = s => new Date(s+"T00:00:00");
+const isoLocal = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const today = new Date(); today.setHours(0,0,0,0);
+const todayIso = isoLocal(today);
+const raceDate = dateObj("2026-11-22"), startDate=dateObj("2026-09-08");
+
+document.getElementById("totalKm").textContent=DATA.meta.total_km.toFixed(1)+" km";
+document.getElementById("sepKm").textContent=DATA.meta.sep_km.toFixed(1)+" km";
+document.getElementById("octKm").textContent=DATA.meta.oct_km.toFixed(1)+" km";
+const dd=Math.ceil((raceDate-today)/86400000);
+document.getElementById("dday").textContent=dd>=0?"D-"+dd:"완료";
+
+const elapsed=Math.max(0,Math.min(1,(today-startDate)/(raceDate-startDate)));
+document.getElementById("projectProgress").style.width=(elapsed*100).toFixed(1)+"%";
+document.getElementById("progressText").textContent=`시즌 일정 ${(elapsed*100).toFixed(0)}% 경과 · 인천 2:59:xx가 최우선`;
+
+function intensityClass(x){
+ if(x==="하")return"low"; if(x==="중"||x==="중상")return"mid"; if(x==="상"||x==="최상")return"high"; if(x==="휴식")return"rest"; return"";
+}
+const todayRow=DATA.daily.find(r=>r["날짜"]===todayIso);
+document.getElementById("todayCard").innerHTML=todayRow?`
+ <div class="today-main"><div class="date">${esc(todayRow["날짜"])} (${koDay[todayRow["요일"]]||esc(todayRow["요일"])})</div>
+ <div class="session">${esc(todayRow["훈련"])}</div>
+ <div class="detail">${esc(todayRow["상세 계획"])}</div></div>
+ <div><span class="badge ${intensityClass(todayRow["강도"])}">${esc(todayRow["강도"])}</span><div style="font-size:30px;font-weight:900;margin-top:8px;text-align:right">${esc(todayRow["계획 km"])}K</div></div>`:
+ `<div class="today-main"><div class="session">오늘은 계획 기간 밖입니다.</div><div class="detail">계획 기간: 2026-09-08 ~ 2026-11-22</div></div>`;
+
+const futureCp=DATA.checkpoints.filter(c=>dateObj(c["날짜"])>=today).sort((a,b)=>dateObj(a["날짜"])-dateObj(b["날짜"]))[0];
+document.getElementById("nextCp").innerHTML=futureCp?`<div style="font-size:13px;color:#64748b">${esc(futureCp["날짜"])} · ${esc(futureCp["D-Day 성격"])}</div><div style="font-size:22px;font-weight:900;margin:4px 0">${esc(futureCp["훈련/대회"])}</div><div class="note">${esc(futureCp["꼭 성공해야 할 기준"])}</div>`:"<div class='note'>모든 체크포인트가 완료되었습니다.</div>";
+
+const maxW=Math.max(...DATA.weekly.map(w=>Number(w.km)||0));
+document.getElementById("weekBars").innerHTML=DATA.weekly.map(w=>`<div class="bar-col"><div class="bar-val">${w.km}</div><div class="bar" style="height:${Math.max(8,(w.km/maxW)*145)}px"></div><div class="bar-label">${esc(w.week)}<br>${esc(w.period)}</div></div>`).join("");
+
+const dailyHeaders=["날짜","요일","훈련","상세 계획","계획 km","강도","목적","실제 km","실제 평균페이스","통증/컨디션","메모"];
+document.querySelector("#dailyTable thead").innerHTML="<tr>"+dailyHeaders.map(h=>`<th>${h}</th>`).join("")+"</tr>";
+function renderDaily(){
+ const m=document.getElementById("monthFilter").value, inten=document.getElementById("intensityFilter").value, q=document.getElementById("searchBox").value.toLowerCase();
+ const cps=new Set(DATA.checkpoints.map(c=>c["날짜"]));
+ const rows=DATA.daily.filter(r=>(m==="all"||r["날짜"].slice(5,7)===m)&&(inten==="all"||r["강도"]===inten)&&(!q||(r["훈련"]+" "+r["상세 계획"]+" "+r["목적"]).toLowerCase().includes(q)));
+ document.querySelector("#dailyTable tbody").innerHTML=rows.map(r=>{
+   const key="train_"+r["날짜"];
+   let saved={}; try{saved=JSON.parse(localStorage.getItem(key)||"{}")}catch(e){}
+   return `<tr id="row-${r["날짜"]}" class="${r["날짜"]===todayIso?"today-row ":""}${cps.has(r["날짜"])?"checkpoint-row":""}">
+   ${dailyHeaders.map(h=>{
+      if(["실제 km","실제 평균페이스","통증/컨디션","메모"].includes(h)){
+        const val=saved[h]??r[h]??"";
+        return `<td><div class="editable" contenteditable="true" data-date="${r["날짜"]}" data-field="${h}">${esc(val)}</div></td>`;
+      }
+      if(h==="요일") return `<td>${koDay[r[h]]||esc(r[h])}</td>`;
+      if(h==="강도") return `<td><span class="badge ${intensityClass(r[h])}">${esc(r[h])}</span></td>`;
+      return `<td>${esc(r[h])}</td>`;
+   }).join("")}</tr>`;
+ }).join("");
+ document.querySelectorAll(".editable").forEach(el=>el.addEventListener("input",e=>{
+   const date=e.target.dataset.date, field=e.target.dataset.field, key="train_"+date;
+   let obj={}; try{obj=JSON.parse(localStorage.getItem(key)||"{}")}catch(_){}
+   obj[field]=e.target.textContent.trim(); localStorage.setItem(key,JSON.stringify(obj));
+ }));
+}
+renderDaily();
+["monthFilter","intensityFilter"].forEach(id=>document.getElementById(id).addEventListener("change",renderDaily));
+document.getElementById("searchBox").addEventListener("input",renderDaily);
+document.getElementById("todayBtn").addEventListener("click",()=>{renderDaily(); setTimeout(()=>document.getElementById("row-"+todayIso)?.scrollIntoView({behavior:"smooth",block:"center"}),30)});
+
+document.getElementById("cpList").innerHTML=DATA.checkpoints.map(c=>{
+ const critical=String(c["중요도"]).includes("★★★★★★")||c["훈련/대회"].includes("인천");
+ return `<div class="card span12 checkpoint ${critical?"critical":""}">
+  <div class="cp-head"><div><div class="cp-title">${esc(c["중요도"])} ${esc(c["훈련/대회"])}</div><div class="note">${esc(c["D-Day 성격"])}</div></div><div class="cp-date">${esc(c["날짜"])}</div></div>
+  <div class="cp-body"><div class="mini"><b>성공 기준</b><span>${esc(c["꼭 성공해야 할 기준"])}</span></div><div class="mini"><b>왜 중요한가</b><span>${esc(c["왜 중요한가"])}</span></div><div class="mini"><b>실패/조정 시</b><span>${esc(c["실패/조정 시 해석"])}</span></div></div>
+ </div>`;
+}).join("");
+
+document.getElementById("paceGrid").innerHTML=DATA.pace.map(p=>`<div class="pace-card"><div class="n">${esc(p["구분"])}</div><div class="p">${esc(p["페이스"])}</div><div class="note">${esc(p["체감"])}</div><div class="x"><b>사용:</b> ${esc(p["사용법"])}<br><b>주의:</b> ${esc(p["주의"])}</div></div>`).join("");
+
+document.getElementById("weeklyTable").innerHTML=`<thead><tr><th>주차</th><th>기간</th><th>계획 km</th><th>핵심 세션</th></tr></thead><tbody>${DATA.weekly.map(w=>`<tr><td><b>${esc(w.week)}</b></td><td>${esc(w.period)}</td><td>${esc(w.km)}</td><td>${esc(w.key)}</td></tr>`).join("")}</tbody>`;
+
+document.getElementById("briefList").innerHTML=DATA.briefing.map(b=>`<div class="brief-item"><h3>${esc(b["주제"])}</h3><p>${esc(b["상세 브리핑"])}</p><p><b>성공 기준:</b> ${esc(b["성공 기준"])}</p><p><b>조정 기준:</b> ${esc(b["조정 기준"])}</p></div>`).join("");
+
+document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{
+ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); btn.classList.add("active");
+ document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active")); document.getElementById(btn.dataset.tab).classList.add("active");
+}));
+</script>
+</body></html>
